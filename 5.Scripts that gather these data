@@ -33,3 +33,21 @@ db = client['CIS4400']
 collection = db['CIS4400']
 data_dict = data.to_dict("records")
 collection.insert_many(data_dict)
+
+Scripts that models the database
+
+from pymongo import MongoClient
+import pandas as pd
+client = MongoClient('mongodb+srv://1ss23d:1ss23d@cluster0.cis2zui.mongodb.net/')
+db = client['CIS4400']
+data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data'
+column_names = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'income']
+data = pd.read_csv(data_url, header=None, names=column_names)
+records_ = data.to_dict(orient='records')
+fact_collection = db['income_fact']
+fact_data = [{'FactID': i+1, 'Income': record['income']} for i, record in enumerate(records_)]
+fact_collection.insert_many(fact_data)
+for dimension in column_names[:-1]: 
+    dimension_collection = db[f'{dimension}_dimension']
+    dimension_data = [{'SurrogateKey': i+1, dimension.capitalize(): record[dimension]} for i, record in enumerate(records_)]
+    dimension_collection.insert_many(dimension_data)
