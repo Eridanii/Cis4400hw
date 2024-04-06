@@ -21,3 +21,16 @@ import pandas as pd
 data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data'
 data = pd.read_csv(data_url, header=None)
 data.to_csv('adult.csv', index=False)
+
+
+Scripts that uploads the data to the blob container
+
+from azure.storage.blob import BlobServiceClient
+try:
+    blob_service_client = BlobServiceClient.from_connection_string("<DefaultEndpointsProtocol=https;AccountName=cis4400hw;AccountKey=UTf1xKatsU+N5xYbtTIAw1PmWpp4UECKY5FPwrHJ1MpxMOAnvPDFkrooGJ4mj28aFV9SvIOMG2FR+AStpdW+pA==;EndpointSuffix=core.windows.net>")
+    container_client = blob_service_client.get_container_client("<cis4400hw>")
+    with open("D:\\adult.csv", "rb") as data:
+        container_client.upload_blob("adult.csv", data)        
+    print("File uploaded successfully.")
+except Exception as e:
+    print("An error occurred:", str(e))
